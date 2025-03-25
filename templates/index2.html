@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Company Data</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style1.css') }}">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <div class="container mt-5">
+        <h2 class="mb-4 text-center">Search Company Data</h2>
+
+        <!--<h2 class="mb-4">Search Company Data</h2> -->
+        <form method="post" class="mb-4">
+            <div class="mb-3">
+                <label for="company_name" class="form-label">Logo Name</label>
+                <select class="form-control" id="company_name" name="company_name" required>
+                    <option value="">Select Logo</option>
+                    {% for company in company_names %}
+                    <option value="{{ company }}">{{ company }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="mb-3">
+                <label for="logo_name" class="form-label">Branch Name</label>
+                <select class="form-control" id="logo_name" name="logo_name">
+                    <option value="">Select Branch</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary">Search</button>
+        </form>
+
+        {% if structured_output %}
+        <div class="result">
+            <h2>Company Details</h2>
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Logo Name</th>
+                        <th>Branch Name</th>
+                        <th>Status</th>
+                        <th>CIN</th>
+                        
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for company in structured_output %}
+                    <tr>
+                        <td>{{ company['Logo Name'] }}</td>
+                        <td>{{ company['Branch Name'] }}</td>
+                        <td>{{ company['Status'] }}</td>
+                        <td>{{ company['CIN'] }}</td>
+                        
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% elif not_found %}
+        <p class="not-found alert alert-warning">No companies found for the given criteria. Please try again.</p>
+        {% endif %}
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            $('#company_name').change(function() {
+                let company = $(this).val();
+                $.ajax({
+                    url: '/get_logos',
+                    method: 'GET',
+                    data: {company_name: company},
+                    success: function(data) {
+                        let logoSelect = $('#logo_name');
+                        logoSelect.empty();
+                        logoSelect.append('<option value="">Select Logo</option>');
+                        $.each(data, function(index, logo) {
+                            logoSelect.append('<option value="' + logo + '">' + logo + '</option>');
+                        });
+                    }
+                });
+            });
+        });
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
